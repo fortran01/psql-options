@@ -10,6 +10,7 @@ A simple Docker Compose configuration for running PostgreSQL with persistent dat
     - [Custom Configuration](#custom-configuration)
   - [Data Persistence](#data-persistence)
   - [Initialization Scripts](#initialization-scripts)
+    - [Included Schema](#included-schema)
   - [Commands](#commands)
     - [Start Services](#start-services)
     - [Stop Services](#stop-services)
@@ -18,6 +19,7 @@ A simple Docker Compose configuration for running PostgreSQL with persistent dat
     - [Backup Database](#backup-database)
     - [Restore Database](#restore-database)
     - [Reset Database (⚠️ Destructive)](#reset-database-️-destructive)
+    - [Working with the Schema](#working-with-the-schema)
   - [Health Check](#health-check)
   - [Troubleshooting](#troubleshooting)
     - [Common Issues](#common-issues)
@@ -101,6 +103,41 @@ echo "CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR(100));" > init-scr
 
 Scripts are executed in alphabetical order.
 
+### Included Schema
+
+This setup includes a sample schema (`01-create-schema.sql`) that creates:
+
+- **Schema**: `app` - A dedicated schema for application tables
+- **Tables**:
+  - `app.users` - User accounts with username, email, and profile info
+  - `app.products` - Product catalog with pricing and inventory
+  - `app.orders` - Customer orders with status tracking
+  - `app.order_items` - Individual items within orders
+- **Sample Data**: Pre-populated with example users and products
+- **Indexes**: Optimized for common queries
+- **View**: `app.order_summary` - Convenient order overview
+
+To explore the schema:
+
+```bash
+# Connect to database
+docker-compose exec postgres psql -U postgres -d myapp
+
+# List all schemas
+\dn
+
+# Set search path to include app schema
+SET search_path TO app, public;
+
+# List tables in the app schema
+\dt app.*
+
+# View sample data
+SELECT * FROM app.users;
+SELECT * FROM app.products;
+SELECT * FROM app.order_summary;
+```
+
 ## Commands
 
 ### Start Services
@@ -141,6 +178,43 @@ docker-compose exec -T postgres psql -U postgres myapp < backup.sql
 ```bash
 docker-compose down -v  # Removes volumes and data
 docker-compose up -d
+```
+
+### Working with the Schema
+```bash
+# Connect and set search path
+docker-compose exec postgres psql -U postgres -d myapp -c "SET search_path TO app, public;"
+
+# Query sample data
+docker-compose exec postgres psql -U postgres -d myapp -c "SET search_path TO app, public; SELECT username, email FROM users;"
+
+# View product catalog
+docker-compose exec postgres psql -U postgres -d myapp -c "SET search_path TO app, public; SELECT name, price, category FROM products;"
+
+# Check database structure
+docker-compose exec postgres psql -U postgres -d myapp -c "\dt app.*"
+
+# Create a sample order (interactive session recommended)
+docker-compose exec postgres psql -U postgres -d myapp
+```
+
+Example queries to try in the interactive session:
+```sql
+-- Set search path
+SET search_path TO app, public;
+
+-- Create a sample order
+INSERT INTO orders (user_id, total_amount, status) 
+VALUES (1, 1029.98, 'pending');
+
+-- Add items to the order
+INSERT INTO order_items (order_id, product_id, quantity, unit_price) 
+VALUES 
+    (1, 1, 1, 999.99),  -- Laptop
+    (1, 2, 1, 29.99);   -- Wireless Mouse
+
+-- View the order summary
+SELECT * FROM order_summary WHERE order_id = 1;
 ```
 
 ## Health Check
