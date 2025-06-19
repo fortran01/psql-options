@@ -34,6 +34,11 @@ A simple Docker Compose configuration for running PostgreSQL with persistent dat
     - [Basic PostgreSQL Commands](#basic-postgresql-commands)
     - [Using pgAdmin](#using-pgadmin)
     - [Default Configuration](#default-configuration)
+  - [Alternative: Neon Launchpad (Instant Cloud PostgreSQL)](#alternative-neon-launchpad-instant-cloud-postgresql)
+    - [Method 1: Web Interface](#method-1-web-interface)
+    - [Method 2: CLI Command](#method-2-cli-command)
+    - [Using Your Neon Database](#using-your-neon-database)
+    - [Claiming Your Database](#claiming-your-database)
   - [PostgreSQL Version](#postgresql-version)
   - [Resources](#resources)
 
@@ -416,6 +421,91 @@ open -a pgAdmin\ 4
 - **Default User**: Your system username
 - **Data Directory**: `/opt/homebrew/var/postgresql@15/` (Apple Silicon) or `/usr/local/var/postgresql@15/` (Intel)
 - **Config File**: `/opt/homebrew/etc/postgresql@15/postgresql.conf`
+
+## Alternative: Neon Launchpad (Instant Cloud PostgreSQL)
+
+If you want to get started with PostgreSQL instantly without any local setup, you can use [Neon Launchpad](https://neon.com/blog/neon-launchpad) - a tool that provides instant, hosted PostgreSQL databases in seconds with no signup required.
+
+### Method 1: Web Interface
+
+The fastest way to get a PostgreSQL database:
+
+1. **Go to [neon.new](https://neon.new)** in your browser
+2. **Get instant database credentials** - you'll receive a connection string immediately
+3. **Use it like any PostgreSQL database** - works with any PostgreSQL-compatible tool
+
+### Method 2: CLI Command
+
+For command-line users and automation:
+
+```bash
+# Get an instant PostgreSQL database
+npx neondb
+```
+
+This will:
+- Create a real, hosted PostgreSQL database in 2 seconds
+- Generate a `.env` file with standard environment variables
+- Provide both direct and pooled connection strings
+
+Example output in your `.env` file:
+```bash
+# Claimable DB expires at: {{ date string }}
+# Claim it now to your account: https://neon.new/database/{{hash}}
+DATABASE_URL=postgresql://...
+DATABASE_URL_POOLER=postgresql://...
+```
+
+You can also use it with options:
+```bash
+# Skip prompts and use defaults
+npx neondb --yes
+
+# Specify custom .env file location
+npx neondb --env ./custom/.env
+
+# Set custom database URL key
+npx neondb --key DB_CONNECTION_STRING
+```
+
+### Using Your Neon Database
+
+The connection strings work with any PostgreSQL-compatible framework or tool:
+
+```bash
+# Connect using psql
+psql $DATABASE_URL
+
+# Use with your application
+# The DATABASE_URL environment variable is automatically set
+```
+
+You can also use it to seed your database with the existing schema:
+
+```bash
+# Apply your initialization scripts
+psql $DATABASE_URL < init-scripts/01-create-schema.sql
+```
+
+### Claiming Your Database
+
+Databases created with Neon Launchpad:
+- **Last 72 hours by default** - perfect for development and testing
+- **Can be claimed later** - visit the claim URL provided to link it to a Neon account
+- **Zero downtime claiming** - your connection strings continue to work after claiming
+- **No interruptions** - your application stays connected during the claim process
+
+To claim your database:
+1. Visit the claim URL provided in the CLI output or `.env` file
+2. Create a Neon account or sign in
+3. The database is instantly linked to your account with no downtime
+
+This makes Neon Launchpad perfect for:
+- **Quick prototyping** - get a database instantly
+- **Development workflows** - no local setup required  
+- **CI/CD pipelines** - fresh databases for each test run
+- **Demos and tutorials** - share working databases instantly
+- **AI agents and platforms** - programmatic database provisioning
 
 ## PostgreSQL Version
 
