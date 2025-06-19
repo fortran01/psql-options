@@ -1,0 +1,72 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Database backups and dumps
+*.sql
+*.dump
+backup/
+backups/
+
+# Initialization scripts (if they contain sensitive data)
+# Uncomment the line below if your init scripts contain secrets
+# init-scripts/
+
+# Docker volumes and data
+postgres_data/
+pgdata/
+
+# Logs
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Node.js (if you add any Node.js tooling)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python (if you add any Python scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# Docker
+.dockerignore
+
+# SSL certificates (if you add SSL)
+*.pem
+*.key
+*.crt
+*.csr
+
+# Local configuration overrides
+docker-compose.override.yml
+docker-compose.local.yml 
