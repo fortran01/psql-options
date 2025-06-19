@@ -2,6 +2,36 @@
 
 A simple Docker Compose configuration for running PostgreSQL with persistent data storage and easy configuration.
 
+- [PostgreSQL Docker Setup](#postgresql-docker-setup)
+  - [Prerequisites](#prerequisites)
+  - [Quick Start](#quick-start)
+  - [Configuration](#configuration)
+    - [Environment Variables](#environment-variables)
+    - [Custom Configuration](#custom-configuration)
+  - [Data Persistence](#data-persistence)
+  - [Initialization Scripts](#initialization-scripts)
+  - [Commands](#commands)
+    - [Start Services](#start-services)
+    - [Stop Services](#stop-services)
+    - [View Logs](#view-logs)
+    - [Connect to Database](#connect-to-database)
+    - [Backup Database](#backup-database)
+    - [Restore Database](#restore-database)
+    - [Reset Database (⚠️ Destructive)](#reset-database-️-destructive)
+  - [Health Check](#health-check)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Issues](#common-issues)
+    - [Useful Commands](#useful-commands)
+  - [Security Considerations](#security-considerations)
+  - [Alternative: Local PostgreSQL Installation](#alternative-local-postgresql-installation)
+    - [Install PostgreSQL with Homebrew](#install-postgresql-with-homebrew)
+    - [Start and Stop PostgreSQL Service](#start-and-stop-postgresql-service)
+    - [Basic PostgreSQL Commands](#basic-postgresql-commands)
+    - [Using pgAdmin](#using-pgadmin)
+    - [Default Configuration](#default-configuration)
+  - [PostgreSQL Version](#postgresql-version)
+  - [Resources](#resources)
+
 ## Prerequisites
 
 - Docker
@@ -170,6 +200,88 @@ For production use, consider:
 3. **Use secrets**: Store sensitive data in Docker secrets
 4. **Regular updates**: Keep PostgreSQL image updated
 5. **Backup strategy**: Implement automated backups
+
+## Alternative: Local PostgreSQL Installation
+
+If you prefer to run PostgreSQL locally without Docker, you can install it using Homebrew:
+
+### Install PostgreSQL with Homebrew
+
+```bash
+# Install PostgreSQL
+brew install postgresql@15
+
+# Or install the latest version
+brew install postgresql
+
+# Install pgAdmin (PostgreSQL administration tool)
+brew install --cask pgadmin4
+```
+
+### Start and Stop PostgreSQL Service
+
+```bash
+# Start PostgreSQL service
+brew services start postgresql@15
+
+# Stop PostgreSQL service
+brew services stop postgresql@15
+
+# Restart PostgreSQL service
+brew services restart postgresql@15
+
+# Check service status
+brew services list | grep postgresql
+```
+
+### Basic PostgreSQL Commands
+
+```bash
+# Create a database
+createdb myapp
+
+# Connect to database
+psql myapp
+
+# Connect as specific user
+psql -U postgres myapp
+
+# List all databases
+psql -l
+
+# Drop a database
+dropdb myapp
+```
+
+### Using pgAdmin
+
+pgAdmin is a web-based PostgreSQL administration tool that provides a graphical interface for managing databases.
+
+```bash
+# Launch pgAdmin
+open -a pgAdmin\ 4
+
+# Or find it in Applications folder
+# Applications > pgAdmin 4
+```
+
+**Setting up pgAdmin connection:**
+
+1. Open pgAdmin (it will launch in your web browser)
+2. Click "Add New Server"
+3. Configure the connection:
+   - **Name**: Local PostgreSQL (or any name you prefer)
+   - **Host**: localhost
+   - **Port**: 5432
+   - **Username**: Your system username (or postgres if configured)
+   - **Password**: Leave blank if no password is set, or enter your password
+
+### Default Configuration
+
+- **Default Port**: 5432
+- **Default User**: Your system username
+- **Data Directory**: `/opt/homebrew/var/postgresql@15/` (Apple Silicon) or `/usr/local/var/postgresql@15/` (Intel)
+- **Config File**: `/opt/homebrew/etc/postgresql@15/postgresql.conf`
 
 ## PostgreSQL Version
 
