@@ -9,6 +9,9 @@ A simple Docker Compose configuration for running PostgreSQL with persistent dat
     - [Environment Variables](#environment-variables)
     - [Custom Configuration](#custom-configuration)
   - [Data Persistence](#data-persistence)
+  - [pgAdmin4 Web Interface](#pgadmin4-web-interface)
+    - [Accessing pgAdmin4](#accessing-pgadmin4)
+    - [Connecting to PostgreSQL](#connecting-to-postgresql)
   - [Initialization Scripts](#initialization-scripts)
     - [Included Schema](#included-schema)
   - [Commands](#commands)
@@ -57,6 +60,11 @@ A simple Docker Compose configuration for running PostgreSQL with persistent dat
    psql -h localhost -p 5432 -U postgres -d myapp
    ```
 
+4. **Access pgAdmin4 Web Interface**:
+   - Open http://localhost:8080 in your browser
+   - Login with email: `admin@example.com` and password: `admin`
+   - Add a new server connection to `postgres:5432`
+
 ## Configuration
 
 ### Environment Variables
@@ -74,23 +82,73 @@ Available environment variables:
 | `POSTGRES_DB` | `myapp` | Default database name |
 | `POSTGRES_USER` | `postgres` | PostgreSQL username |
 | `POSTGRES_PASSWORD` | `password` | PostgreSQL password |
+| `PGADMIN_DEFAULT_EMAIL` | `admin@example.com` | pgAdmin4 login email |
+| `PGADMIN_DEFAULT_PASSWORD` | `admin` | pgAdmin4 login password |
 
 ### Custom Configuration
 
 You can modify the `docker-compose.yml` file to:
 
-- Change the exposed port (default: 5432)
+- Change the exposed ports (PostgreSQL: 5432, pgAdmin4: 8080)
 - Add additional PostgreSQL configuration
 - Mount custom configuration files
+- Customize pgAdmin4 settings and authentication
 
 ## Data Persistence
 
 Data is automatically persisted using Docker volumes:
 
-- **Volume**: `postgres_data`
-- **Mount Point**: `/var/lib/postgresql/data`
+- **PostgreSQL Data**:
+  - Volume: `postgres_data`
+  - Mount Point: `/var/lib/postgresql/data`
+- **pgAdmin4 Data**:
+  - Volume: `pgadmin_data`
+  - Mount Point: `/var/lib/pgadmin`
 
-Your data will survive container restarts and updates.
+Your data and pgAdmin4 configuration will survive container restarts and updates.
+
+## pgAdmin4 Web Interface
+
+This setup includes pgAdmin4, a web-based PostgreSQL administration tool that provides a graphical interface for managing your databases.
+
+### Accessing pgAdmin4
+
+1. **Start the services**:
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **Open pgAdmin4 in your browser**:
+   - URL: http://localhost:8080
+   - Email: `admin@example.com`
+   - Password: `admin`
+
+### Connecting to PostgreSQL
+
+Once logged into pgAdmin4:
+
+1. **Add New Server**:
+   - Right-click "Servers" in the left panel
+   - Select "Register" > "Server..."
+
+2. **Configure Connection**:
+   - **General Tab**:
+     - Name: `PostgreSQL Docker` (or any name you prefer)
+   - **Connection Tab**:
+     - Host name/address: `postgres` (the service name from docker-compose)
+     - Port: `5432`
+     - Username: `postgres`
+     - Password: `password`
+
+3. **Save and Connect**: Click "Save" to establish the connection
+
+You can now use pgAdmin4's graphical interface to:
+- Browse databases and schemas
+- Run SQL queries
+- Create and modify tables
+- View data
+- Monitor database performance
+- Import/export data
 
 ## Initialization Scripts
 
@@ -230,9 +288,11 @@ docker-compose ps
 
 ### Common Issues
 
-1. **Port already in use**:
-   - Change the port mapping in `docker-compose.yml` from `5432:5432` to `5433:5432`
+1. **Ports already in use**:
+   - PostgreSQL: Change the port mapping in `docker-compose.yml` from `5432:5432` to `5433:5432`
+   - pgAdmin4: Change the port mapping from `8080:80` to `8081:80`
    - Connect using: `psql -h localhost -p 5433 -U postgres -d myapp`
+   - Access pgAdmin4 at: http://localhost:8081
 
 2. **Permission denied errors**:
    - Ensure Docker has proper permissions
