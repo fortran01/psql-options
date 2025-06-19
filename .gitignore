@@ -4,14 +4,14 @@
 .env.*.local
 
 # Database backups and dumps
-*.sql
+#*.sql
 *.dump
 backup/
 backups/
 
 # Initialization scripts (if they contain sensitive data)
 # Uncomment the line below if your init scripts contain secrets
-init-scripts/
+#init-scripts/
 
 # Docker volumes and data
 postgres_data/
