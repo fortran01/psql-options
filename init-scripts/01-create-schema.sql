@@ -1,0 +1,141 @@
+-- Create a schema for the application
+CREATE SCHEMA IF NOT EXISTS APP;
+
+-- Set the search path to include our new schema
+SET search_path TO app, public;
+
+-- Create users table
+CREATE TABLE IF NOT EXISTS APP.USERS (
+  ID SERIAL PRIMARY KEY,
+  USERNAME VARCHAR(50) UNIQUE NOT NULL,
+  EMAIL VARCHAR(100) UNIQUE NOT NULL,
+  FULL_NAME VARCHAR(100),
+  CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create products table
+CREATE TABLE IF NOT EXISTS APP.PRODUCTS (
+  ID SERIAL PRIMARY KEY,
+  NAME VARCHAR(100) NOT NULL,
+  DESCRIPTION TEXT,
+  PRICE DECIMAL(10, 2) NOT NULL,
+  STOCK_QUANTITY INTEGER DEFAULT 0,
+  CATEGORY VARCHAR(50),
+  CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create orders table
+CREATE TABLE IF NOT EXISTS APP.ORDERS (
+  ID SERIAL PRIMARY KEY,
+  USER_ID INTEGER REFERENCES APP.USERS(ID) ON DELETE CASCADE,
+  TOTAL_AMOUNT DECIMAL(10, 2) NOT NULL,
+  STATUS VARCHAR(20) DEFAULT 'pending',
+  ORDER_DATE TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create order_items table
+CREATE TABLE IF NOT EXISTS APP.ORDER_ITEMS (
+  ID SERIAL PRIMARY KEY,
+  ORDER_ID INTEGER REFERENCES APP.ORDERS(ID) ON DELETE CASCADE,
+  PRODUCT_ID INTEGER REFERENCES APP.PRODUCTS(ID) ON DELETE CASCADE,
+  QUANTITY INTEGER NOT NULL,
+  UNIT_PRICE DECIMAL(10, 2) NOT NULL
+);
+
+-- Insert sample data
+INSERT INTO APP.USERS (
+  USERNAME,
+  EMAIL,
+  FULL_NAME
+) VALUES (
+  'john_doe',
+  'john@example.com',
+  'John Doe'
+),
+(
+  'jane_smith',
+  'jane@example.com',
+  'Jane Smith'
+),
+(
+  'bob_wilson',
+  'bob@example.com',
+  'Bob Wilson'
+) ON CONFLICT (
+  USERNAME
+) DO NOTHING;
+
+INSERT INTO APP.PRODUCTS (
+  NAME,
+  DESCRIPTION,
+  PRICE,
+  STOCK_QUANTITY,
+  CATEGORY
+) VALUES (
+  'Laptop',
+  'High-performance laptop for work and gaming',
+  999.99,
+  10,
+  'Electronics'
+),
+(
+  'Wireless Mouse',
+  'Ergonomic wireless mouse with long battery life',
+  29.99,
+  50,
+  'Electronics'
+),
+(
+  'Coffee Mug',
+  'Ceramic coffee mug with company logo',
+  12.99,
+  100,
+  'Accessories'
+),
+(
+  'Notebook',
+  'Professional notebook for meetings and notes',
+  8.99,
+  75,
+  'Office Supplies'
+) ON CONFLICT DO NOTHING;
+
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS IDX_USERS_EMAIL ON APP.USERS(EMAIL);
+
+CREATE INDEX IF NOT EXISTS IDX_PRODUCTS_CATEGORY ON APP.PRODUCTS(CATEGORY);
+
+CREATE INDEX IF NOT EXISTS IDX_ORDERS_USER_ID ON APP.ORDERS(USER_ID);
+
+CREATE INDEX IF NOT EXISTS IDX_ORDERS_STATUS ON APP.ORDERS(STATUS);
+
+-- Create a view for order summaries
+CREATE OR REPLACE VIEW APP.ORDER_SUMMARY AS
+  SELECT
+    O.ID           AS ORDER_ID,
+    U.USERNAME,
+    U.EMAIL,
+    O.TOTAL_AMOUNT,
+    O.STATUS,
+    O.ORDER_DATE,
+    COUNT(OI.ID)   AS ITEM_COUNT
+  FROM
+    APP.ORDERS      O
+    JOIN APP.USERS U
+    ON O.USER_ID = U.ID
+    LEFT JOIN APP.ORDER_ITEMS OI
+    ON O.ID = OI.ORDER_ID
+  GROUP BY
+    O.ID,
+    U.USERNAME,
+    U.EMAIL,
+    O.TOTAL_AMOUNT,
+    O.STATUS,
+    O.ORDER_DATE;
+
+-- Grant permissions (optional, for when you have multiple users)
+-- GRANT USAGE ON SCHEMA app TO your_app_user;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA app TO your_app_user;
+-- GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA app TO your_app_user;
